@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>코드네임 웹앱</title>
+    <style>
+        body {
+            font-family: 'Pretendard', 'Malgun Gothic', sans-serif;
+            background-color: #f4f4f9;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            margin: 0;
+        }
+        h1 {
+            color: #333;
+        }
+        .controls {
+            margin-bottom: 20px;
+            display: flex;
+            gap: 10px;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            font-weight: bold;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        .btn-new { background-color: #4CAF50; color: white; }
+        .btn-new:hover { background-color: #45a049; }
+        .btn-spy { background-color: #ff9800; color: white; }
+        .btn-spy:hover { background-color: #e68a00; }
+        
+        .board {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 12px;
+            max-width: 800px;
+            width: 100%;
+        }
+        .card {
+            background-color: white;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            height: 100px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #333;
+            cursor: pointer;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            transition: transform 0.1s;
+            user-select: none;
+        }
+        .card:active {
+            transform: scale(0.98);
+        }
+        
+        /* 정체가 밝혀졌을 때의 스타일 */
+        .card.revealed-red { background-color: #ff5252; color: white; border-color: #ff5252; }
+        .card.revealed-blue { background-color: #448aff; color: white; border-color: #448aff; }
+        .card.revealed-neutral { background-color: #e0e0e0; color: #555; border-color: #bdbdbd; }
+        .card.revealed-assassin { background-color: #212121; color: white; border-color: #212121; }
+
+        /* 팀장(스파이마스터) 모드일 때 정답 미리보기 스타일 */
+        .spymaster-mode .card:not(.revealed-red):not(.revealed-blue):not(.revealed-neutral):not(.revealed-assassin).type-red {
+            border-color: #ff5252; color: #ff5252; background-color: #ffeaea;
+        }
+        .spymaster-mode .card:not(.revealed-red):not(.revealed-blue):not(.revealed-neutral):not(.revealed-assassin).type-blue {
+            border-color: #448aff; color: #448aff; background-color: #eaefff;
+        }
+        .spymaster-mode .card:not(.revealed-red):not(.revealed-blue):not(.revealed-neutral):not(.revealed-assassin).type-neutral {
+            border-color: #bdbdbd; background-color: #f5f5f5;
+        }
+        .spymaster-mode .card:not(.revealed-red):not(.revealed-blue):not(.revealed-neutral):not(.revealed-assassin).type-assassin {
+            border-color: #212121; color: #212121; background-color: #e0e0e0;
+        }
+        
+        .status {
+            margin-top: 20px;
+            font-size: 1.2rem;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>🕵️ 코드네임</h1>
+    
+    <div class="controls">
+        <button class="btn-new" onclick="initGame()">새 게임 시작</button>
+        <button class="btn-spy" onclick="toggleSpymaster()">팀장(스파이마스터) 뷰 켜기/끄기</button>
+    </div>
+
+    <div class="status" id="status-text">선공: 레드 팀 (남은 카드: 9장)</div>
+
+    <div class="board" id="board">
+        </div>
+
+    <script>
+        // 학생들도 쉽게 이해할 수 있는 단어 풀
+        const wordPool = [
+            '사과', '바다', '우주', '학교', '선생님', '연필', '지우개', '피자', '컴퓨터', '마우스',
+            '강아지', '고양이', '사자', '호랑이', '로봇', '비행기', '자동차', '자전거', '지하철', '태양',
+            '달', '별', '나무', '꽃', '나비', '거미', '의자', '책상', '안경', '가방',
+            '신발', '모자', '우산', '비', '눈', '바람', '구름', '무지개', '사진', '카메라',
+            '음악', '피아노', '기타', '노래', '춤', '축구', '야구', '수영', '태권도', '경찰'
+        ];
+
+        let cards = [];
+        let isSpymasterMode = false;
+        let redLeft = 9;
+        let blueLeft = 8;
+
+        function shuffle(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+
+        function initGame() {
+            // 1. 단어 25개 무작위 선택
+            const shuffledWords = shuffle([...wordPool]).slice(0, 25);
+            
+            // 2. 역할 배정 (레드 9, 블루 8, 중립 7, 암살자 1) - 레드 선공 기준
+            const types = [
+                ...Array(9).fill('red'),
+                ...Array(8).fill('blue'),
+                ...Array(7).fill('neutral'),
+                'assassin'
+            ];
+            const shuffledTypes = shuffle(types);
+
+            // 3. 카드 객체 생성
+            cards = shuffledWords.map((word, index) => ({
+                id: index,
+                word: word,
+                type: shuffledTypes[index],
+                revealed: false
+            }));
+
+            redLeft = 9;
+            blueLeft = 8;
+            isSpymasterMode = false;
+            document.getElementById('board').classList.remove('spymaster-mode');
+            
+            updateStatus();
+            renderBoard();
+        }
+
+        function renderBoard() {
+            const board = document.getElementById('board');
+            board.innerHTML = '';
+
+            cards.forEach(card => {
+                const cardEl = document.createElement('div');
+                cardEl.className = 'card';
+                cardEl.textContent = card.word;
+                
+                // 타입 클래스 추가 (팀장 모드 렌더링용)
+                cardEl.classList.add(`type-${card.type}`);
+
+                // 이미 뒤집힌 카드 처리
+                if (card.revealed) {
+                    cardEl.classList.add(`revealed-${card.type}`);
+                }
+
+                // 클릭 이벤트
+                cardEl.addEventListener('click', () => revealCard(card.id));
+                board.appendChild(cardEl);
+            });
+        }
+
+        function revealCard(id) {
+            // 팀장 모드에서는 클릭 방지 (원치 않으면 이 조건을 제거해도 됩니다)
+            if (isSpymasterMode) {
+                alert('팀장(스파이마스터) 뷰 상태에서는 카드를 뒤집을 수 없습니다.');
+                return;
+            }
+
+            const card = cards.find(c => c.id === id);
+            if (card.revealed) return; // 이미 뒤집힌 카드는 무시
+
+            card.revealed = true;
+
+            // 남은 개수 업데이트
+            if (card.type === 'red') redLeft--;
+            if (card.type === 'blue') blueLeft--;
+
+            renderBoard();
+            updateStatus();
+
+            // 게임 종료 조건 체크
+            setTimeout(() => {
+                if (card.type === 'assassin') {
+                    alert('💥 암살자를 선택했습니다! 게임 오버!');
+                    revealAll();
+                } else if (redLeft === 0) {
+                    alert('🎉 레드 팀 승리!');
+                    revealAll();
+                } else if (blueLeft === 0) {
+                    alert('🎉 블루 팀 승리!');
+                    revealAll();
+                }
+            }, 100);
+        }
+
+        function toggleSpymaster() {
+            isSpymasterMode = !isSpymasterMode;
+            const board = document.getElementById('board');
+            if (isSpymasterMode) {
+                board.classList.add('spymaster-mode');
+            } else {
+                board.classList.remove('spymaster-mode');
+            }
+        }
+
+        function updateStatus() {
+            document.getElementById('status-text').textContent = 
+                `남은 카드 - 레드: ${redLeft}장 | 블루: ${blueLeft}장`;
+        }
+
+        function revealAll() {
+            cards.forEach(card => card.revealed = true);
+            renderBoard();
+        }
+
+        // 초기 게임 실행
+        initGame();
+    </script>
+</body>
+</html>
