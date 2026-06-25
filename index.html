@@ -16,40 +16,88 @@
     <!-- 요원 등록 (입장 화면) -->
     <div id="entryScreen" class="fixed inset-0 bg-gray-100 z-[100] flex items-center justify-center">
         <div class="bg-white p-8 rounded-2xl shadow-xl w-full max-w-md text-center mx-4 overflow-y-auto max-h-[95vh]">
-            <h2 class="text-3xl font-extrabold text-gray-800 mb-2">🕵️ 요원 등록</h2>
-            <p class="text-gray-500 mb-6 text-sm">참여할 방 코드와 역할을 설정해주세요.</p>
             
-            <input type="text" id="inputRoomCode" placeholder="방 코드 (예: 1234)" class="w-full border-2 border-indigo-200 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-400 mb-4 text-center text-xl font-bold tracking-widest text-indigo-700 uppercase" maxlength="10">
+            <!-- Step 1: 기본 정보 및 역할 선택 -->
+            <div id="entryStep1">
+                <h2 class="text-3xl font-extrabold text-gray-800 mb-2">🕵️ 요원 등록</h2>
+                <p class="text-gray-500 mb-6 text-sm">참여할 기본 정보와 역할을 설정해주세요.</p>
+                
+                <div class="flex gap-2 mb-4">
+                    <select id="inputGrade" class="w-1/3 border border-gray-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-400 text-center bg-white appearance-none cursor-pointer text-sm sm:text-base">
+                        <option value="" disabled selected>학년</option>
+                        <option value="1">1학년</option>
+                        <option value="2">2학년</option>
+                        <option value="3">3학년</option>
+                        <option value="4">4학년</option>
+                        <option value="5">5학년</option>
+                        <option value="6">6학년</option>
+                    </select>
+                    <select id="inputClass" class="w-1/3 border border-gray-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-400 text-center bg-white appearance-none cursor-pointer text-sm sm:text-base">
+                        <option value="" disabled selected>반</option>
+                        <option value="1">1반</option>
+                        <option value="2">2반</option>
+                        <option value="3">3반</option>
+                        <option value="4">4반</option>
+                        <option value="5">5반</option>
+                        <option value="6">6반</option>
+                        <option value="7">7반</option>
+                        <option value="8">8반</option>
+                        <option value="9">9반</option>
+                        <option value="10">10반</option>
+                    </select>
+                    <input type="number" id="inputNumber" placeholder="번호" class="w-1/3 border border-gray-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-400 text-center">
+                </div>
+                <input type="text" id="inputName" placeholder="이름" class="w-full border border-gray-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-400 mb-4 text-center">
 
-            <div class="flex gap-4 mb-4 justify-center">
-                <label class="cursor-pointer flex-1">
-                    <input type="radio" name="roleSelect" value="agent" class="peer sr-only" checked>
-                    <div class="py-2 rounded-xl border-2 border-gray-200 peer-checked:border-green-500 peer-checked:bg-green-50 peer-checked:text-green-700 font-bold transition-all text-sm">🏃 요원 (Agent)</div>
-                </label>
-                <label class="cursor-pointer flex-1">
-                    <input type="radio" name="roleSelect" value="spymaster" class="peer sr-only">
-                    <div class="py-2 rounded-xl border-2 border-gray-200 peer-checked:border-purple-500 peer-checked:bg-purple-50 peer-checked:text-purple-700 font-bold transition-all text-sm">👁️ 팀장 (Spymaster)</div>
-                </label>
+                <div class="flex gap-4 mb-4 justify-center">
+                    <label class="cursor-pointer flex-1">
+                        <input type="radio" name="roleSelect" value="agent" class="peer sr-only" checked>
+                        <div class="py-2 rounded-xl border-2 border-gray-200 peer-checked:border-green-500 peer-checked:bg-green-50 peer-checked:text-green-700 font-bold transition-all text-sm">🏃 요원 (Agent)</div>
+                    </label>
+                    <label class="cursor-pointer flex-1">
+                        <input type="radio" name="roleSelect" value="spymaster" class="peer sr-only">
+                        <div class="py-2 rounded-xl border-2 border-gray-200 peer-checked:border-purple-500 peer-checked:bg-purple-50 peer-checked:text-purple-700 font-bold transition-all text-sm">👁️ 팀장 (Spymaster)</div>
+                    </label>
+                </div>
+
+                <div class="flex gap-4 mb-6 justify-center">
+                    <label class="cursor-pointer flex-1">
+                        <input type="radio" name="teamSelect" value="red" class="peer sr-only" checked>
+                        <div class="py-3 rounded-xl border-2 border-gray-200 peer-checked:border-red-500 peer-checked:bg-red-50 peer-checked:text-red-700 font-bold transition-all">🔴 레드 팀</div>
+                    </label>
+                    <label class="cursor-pointer flex-1">
+                        <input type="radio" name="teamSelect" value="blue" class="peer sr-only">
+                        <div class="py-3 rounded-xl border-2 border-gray-200 peer-checked:border-blue-500 peer-checked:bg-blue-50 peer-checked:text-blue-700 font-bold transition-all">🔵 블루 팀</div>
+                    </label>
+                </div>
+
+                <button id="btnNextStep" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 rounded-xl transition-colors shadow-md text-lg">다음 단계</button>
             </div>
 
-            <div class="flex gap-4 mb-4 justify-center">
-                <label class="cursor-pointer flex-1">
-                    <input type="radio" name="teamSelect" value="red" class="peer sr-only" checked>
-                    <div class="py-3 rounded-xl border-2 border-gray-200 peer-checked:border-red-500 peer-checked:bg-red-50 peer-checked:text-red-700 font-bold transition-all">🔴 레드 팀</div>
-                </label>
-                <label class="cursor-pointer flex-1">
-                    <input type="radio" name="teamSelect" value="blue" class="peer sr-only">
-                    <div class="py-3 rounded-xl border-2 border-gray-200 peer-checked:border-blue-500 peer-checked:bg-blue-50 peer-checked:text-blue-700 font-bold transition-all">🔵 블루 팀</div>
-                </label>
+            <!-- Step 2: 방 코드 (자동 생성 또는 입력) -->
+            <div id="entryStep2" class="hidden">
+                <h2 class="text-3xl font-extrabold text-gray-800 mb-2">🚪 방 입장</h2>
+                
+                <!-- 팀장 뷰 -->
+                <div id="spymasterView" class="hidden flex-col items-center mb-6">
+                    <p class="text-gray-500 mb-4 text-sm">자동으로 생성된 방 코드입니다.<br>요원들에게 이 코드를 알려주세요.</p>
+                    <div class="bg-indigo-50 border-2 border-indigo-200 rounded-xl p-4 w-full mb-4">
+                        <span class="block text-sm font-bold text-indigo-400 mb-1">방 코드</span>
+                        <span id="displayRoomCode" class="text-5xl font-black tracking-widest text-indigo-700"></span>
+                    </div>
+                    <button id="btnCreateRoom" class="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 rounded-xl transition-colors shadow-md text-lg">방 만들고 입장</button>
+                </div>
+
+                <!-- 요원 뷰 -->
+                <div id="agentView" class="hidden flex-col items-center mb-6">
+                    <p class="text-gray-500 mb-4 text-sm">팀장님이 알려준 방 코드를 입력해주세요.</p>
+                    <input type="text" id="inputRoomCodeAgent" placeholder="방 코드 (예: 1234)" class="w-full border-2 border-indigo-200 p-4 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-400 mb-4 text-center text-3xl font-bold tracking-widest text-indigo-700 uppercase" maxlength="4">
+                    <button id="btnJoinRoom" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 rounded-xl transition-colors shadow-md text-lg">참여하기</button>
+                </div>
+
+                <button id="btnBackToStep1" class="text-gray-500 hover:text-gray-700 font-medium text-sm underline decoration-gray-300 underline-offset-4">처음으로 돌아가기</button>
             </div>
 
-            <div class="flex gap-2 mb-4">
-                <input type="number" id="inputGrade" placeholder="학년" class="w-1/3 border border-gray-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-400 text-center">
-                <input type="number" id="inputClass" placeholder="반" class="w-1/3 border border-gray-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-400 text-center">
-                <input type="number" id="inputNumber" placeholder="번호" class="w-1/3 border border-gray-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-400 text-center">
-            </div>
-            <input type="text" id="inputName" placeholder="이름" class="w-full border border-gray-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-400 mb-6 text-center">
-            <button id="btnEnterGame" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 rounded-xl transition-colors shadow-md text-lg">게임 입장</button>
         </div>
     </div>
 
@@ -225,7 +273,15 @@
         // --- 학생 등록 로직 ---
         const entryScreen = document.getElementById('entryScreen');
         const userInfoDisplay = document.getElementById('userInfoDisplay');
+        const entryStep1 = document.getElementById('entryStep1');
+        const entryStep2 = document.getElementById('entryStep2');
+        const spymasterView = document.getElementById('spymasterView');
+        const agentView = document.getElementById('agentView');
+        const displayRoomCode = document.getElementById('displayRoomCode');
+        const inputRoomCodeAgent = document.getElementById('inputRoomCodeAgent');
+        
         let studentInfo = JSON.parse(sessionStorage.getItem('codenames_studentInfo'));
+        let tempStudentInfo = {};
 
         // 이미 등록된 정보가 있다면 입장 화면 숨기기
         if (studentInfo) {
@@ -244,38 +300,73 @@
             }
         }
 
-        // 입장 버튼 클릭
-        document.getElementById('btnEnterGame').addEventListener('click', () => {
-            const roomCode = document.getElementById('inputRoomCode').value.trim().toUpperCase();
-            const role = document.querySelector('input[name="roleSelect"]:checked').value;
-            const grade = document.getElementById('inputGrade').value.trim();
-            const classNum = document.getElementById('inputClass').value.trim();
+        // Step 1 -> Step 2
+        document.getElementById('btnNextStep').addEventListener('click', () => {
+            const gradeSelect = document.getElementById('inputGrade');
+            const classSelect = document.getElementById('inputClass');
+            const grade = gradeSelect.value;
+            const classNum = classSelect.value;
             const num = document.getElementById('inputNumber').value.trim();
             const name = document.getElementById('inputName').value.trim();
+            const role = document.querySelector('input[name="roleSelect"]:checked').value;
             const team = document.querySelector('input[name="teamSelect"]:checked').value;
 
-            if (!roomCode) {
-                customAlert('방 코드를 입력해주세요. (새 방을 만들려면 원하는 번호를 입력하세요)');
-                return;
-            }
-
             if (!grade || !classNum || !num || !name) {
-                customAlert('학년, 반, 번호, 이름을 모두 입력해주세요.');
+                customAlert('학년, 반, 번호, 이름을 모두 올바르게 입력(선택)해주세요.');
                 return;
             }
 
-            studentInfo = { roomCode, role, grade, classNum, number: num, name, team };
+            tempStudentInfo = { grade, classNum, number: num, name, role, team };
+
+            entryStep1.classList.add('hidden');
+            entryStep2.classList.remove('hidden');
+
+            if (role === 'spymaster') {
+                // 방 코드 자동 생성 (4자리 랜덤 숫자)
+                const generatedCode = Math.floor(1000 + Math.random() * 9000).toString();
+                displayRoomCode.innerText = generatedCode;
+                tempStudentInfo.roomCode = generatedCode;
+                
+                spymasterView.classList.remove('hidden');
+                spymasterView.classList.add('flex');
+                agentView.classList.add('hidden');
+                agentView.classList.remove('flex');
+            } else {
+                inputRoomCodeAgent.value = '';
+                
+                agentView.classList.remove('hidden');
+                agentView.classList.add('flex');
+                spymasterView.classList.add('hidden');
+                spymasterView.classList.remove('flex');
+            }
+        });
+
+        // Step 2 -> Step 1 (뒤로가기)
+        document.getElementById('btnBackToStep1').addEventListener('click', () => {
+            entryStep2.classList.add('hidden');
+            entryStep1.classList.remove('hidden');
+        });
+
+        // 공통 게임 입장 처리 함수
+        function enterGameProcess(roomCode) {
+            if (!roomCode || roomCode.length !== 4) {
+                customAlert('4자리 방 코드를 정확히 입력해주세요.');
+                return;
+            }
+            
+            tempStudentInfo.roomCode = roomCode;
+            studentInfo = { ...tempStudentInfo };
             sessionStorage.setItem('codenames_studentInfo', JSON.stringify(studentInfo));
             
             entryScreen.classList.add('hidden');
-            const teamColorClass = team === 'red' ? 'bg-red-100 text-red-700' : 'bg-blue-100 text-blue-700';
-            const teamIcon = team === 'red' ? '🔴' : '🔵';
-            const roleIcon = role === 'spymaster' ? '👁️(팀장)' : '🏃(요원)';
+            const teamColorClass = studentInfo.team === 'red' ? 'bg-red-100 text-red-700' : 'bg-blue-100 text-blue-700';
+            const teamIcon = studentInfo.team === 'red' ? '🔴' : '🔵';
+            const roleIcon = studentInfo.role === 'spymaster' ? '👁️(팀장)' : '🏃(요원)';
             userInfoDisplay.className = `text-sm sm:text-base font-semibold px-4 py-1.5 rounded-full shadow-sm ${teamColorClass}`;
-            userInfoDisplay.innerText = `[방: ${roomCode}] ${teamIcon} ${grade}학년 ${classNum}반 ${num}번 ${name} ${roleIcon}`;
+            userInfoDisplay.innerText = `[방: ${studentInfo.roomCode}] ${teamIcon} ${studentInfo.grade}학년 ${studentInfo.classNum}반 ${studentInfo.number}번 ${studentInfo.name} ${roleIcon}`;
             userInfoDisplay.classList.remove('hidden');
 
-            if (role !== 'spymaster') {
+            if (studentInfo.role !== 'spymaster') {
                 btnToggleSpymaster.classList.add('hidden');
             } else {
                 btnToggleSpymaster.classList.remove('hidden');
@@ -285,6 +376,17 @@
             if (currentUser) {
                 initRealtimeListeners();
             }
+        }
+
+        // 팀장: 생성된 방으로 입장
+        document.getElementById('btnCreateRoom').addEventListener('click', () => {
+            enterGameProcess(tempStudentInfo.roomCode);
+        });
+
+        // 요원: 코드 입력 후 입장
+        document.getElementById('btnJoinRoom').addEventListener('click', () => {
+            const enteredCode = inputRoomCodeAgent.value.trim().toUpperCase();
+            enterGameProcess(enteredCode);
         });
 
         // 커스텀 알림 함수
