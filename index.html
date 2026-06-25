@@ -9,7 +9,6 @@
         body { font-family: 'Pretendard', 'Malgun Gothic', sans-serif; }
         .hidden { display: none !important; }
         
-        /* 뱃지 통통 튀는 애니메이션 (팀 변경 시 시각적 효과) */
         @keyframes pop {
             0% { transform: scale(1); }
             50% { transform: scale(1.1); }
@@ -20,13 +19,11 @@
 </head>
 <body class="bg-gray-100 p-4 sm:p-8 flex flex-col items-center font-sans relative min-h-screen">
 
-    <!-- 요원 등록 (입장 화면) -->
     <div id="entryScreen" class="fixed inset-0 bg-gray-100 z-[100] flex items-center justify-center">
         <div class="bg-white p-8 rounded-2xl shadow-xl w-full max-w-md text-center mx-4">
             <h2 class="text-3xl font-extrabold text-gray-800 mb-2">🕵️ 요원 등록</h2>
             <p class="text-gray-500 mb-6 text-sm">소속과 역할을 선택해주세요.</p>
 
-            <!-- 1단계: 정보 입력 -->
             <div id="entryStep1">
                 <div class="flex gap-2 mb-4">
                     <select id="inputGrade" class="w-1/3 border border-gray-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-400 text-center bg-white cursor-pointer">
@@ -45,7 +42,7 @@
                 <input type="text" id="inputName" placeholder="이름" class="w-full border border-gray-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-400 mb-4 text-center">
                 
                 <div class="grid grid-cols-2 gap-3 mb-4">
-                    <button id="btnTeamRed" class="border-2 border-red-300 bg-red-50 text-red-700 font-bold py-2 rounded-lg transition-colors">🔴 레드 팀</button>
+                    <button id="btnTeamRed" class="border-2 border-red-500 bg-red-100 text-red-700 font-bold py-2 rounded-lg transition-colors">🔴 레드 팀</button>
                     <button id="btnTeamBlue" class="border-2 border-gray-200 text-gray-500 font-bold py-2 rounded-lg transition-colors">🔵 블루 팀</button>
                 </div>
 
@@ -57,9 +54,7 @@
                 <button id="btnNextStep" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 rounded-xl transition-colors shadow-md text-lg">다음 단계</button>
             </div>
 
-            <!-- 2단계: 방 생성 또는 참가 -->
             <div id="entryStep2" class="hidden">
-                <!-- 팀장 뷰 (방 생성) -->
                 <div id="leaderView" class="hidden flex flex-col items-center">
                     <p class="text-gray-600 font-bold mb-2">학생들에게 아래의 방 코드를 알려주세요!</p>
                     <div class="bg-gray-100 border-2 border-gray-300 rounded-xl py-4 px-8 mb-6 inline-block">
@@ -68,7 +63,6 @@
                     <button id="btnCreateRoom" class="w-full bg-green-500 hover:bg-green-600 text-white font-bold py-3 rounded-xl transition-colors shadow-md text-lg">방 만들고 입장하기</button>
                 </div>
 
-                <!-- 요원 뷰 (코드 입력) -->
                 <div id="agentView" class="hidden flex flex-col items-center">
                     <p class="text-gray-600 font-bold mb-4">팀장이 알려준 4자리 방 코드를 입력하세요.</p>
                     <input type="text" id="inputRoomCode" maxlength="4" placeholder="예: 4A2B" class="w-full border-2 border-indigo-300 p-4 rounded-xl focus:outline-none focus:border-indigo-600 mb-6 text-center text-2xl font-bold tracking-widest uppercase">
@@ -80,25 +74,21 @@
         </div>
     </div>
 
-    <!-- 로딩 오버레이 -->
     <div id="loadingOverlay" class="fixed inset-0 bg-gray-50 z-50 flex items-center justify-center">
         <div id="loadingMessage" class="text-xl font-bold text-gray-500">게임을 불러오는 중...</div>
     </div>
 
-    <!-- 상단 헤더 -->
     <div class="w-full max-w-5xl flex flex-col sm:flex-row justify-between items-center mb-6 gap-4 border-b pb-4 border-gray-200">
         <h1 class="text-3xl sm:text-4xl font-extrabold text-gray-800 drop-shadow-sm flex items-center gap-2">
             🕵️ CodeNames
         </h1>
         
-        <!-- 내 정보 뱃지 및 팀 변경 / 방 정보 -->
         <div class="flex flex-col sm:flex-row items-center gap-3">
             <span id="roomCodeDisplayBadge" class="text-sm font-bold bg-gray-200 text-gray-700 px-3 py-1.5 rounded-md hidden">방 코드: ----</span>
             
             <div id="userInfoContainer" class="flex items-center gap-2 hidden">
                 <span id="userInfoDisplay" class="text-sm sm:text-base font-semibold px-4 py-1.5 rounded-full shadow-sm transition-colors flex items-center gap-1">
-                    <!-- 학생 정보 표시 영역 -->
-                </span>
+                    </span>
                 <button id="btnChangeTeam" class="text-xs bg-white border border-gray-300 hover:bg-gray-100 text-gray-600 px-2 py-1 rounded shadow-sm transition-colors" title="팀을 바꿉니다">
                     🔄 팀 변경
                 </button>
@@ -110,7 +100,6 @@
         </div>
     </div>
 
-    <!-- 교사 모드 관리 패널 (기본 숨김) -->
     <div id="teacherPanel" class="bg-white border-t-4 border-indigo-500 p-6 rounded-xl shadow-md w-full max-w-5xl mb-8 hidden">
         <h2 class="text-2xl font-bold text-gray-800 mb-6">교사 모드 관리 (Teacher Dashboard)</h2>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -143,39 +132,44 @@
         </div>
     </div>
 
-    <!-- 게임 컨트롤 패널 -->
     <div class="flex flex-wrap gap-4 mb-6 justify-center w-full max-w-5xl">
-        <!-- 팀장에게만 보이는 버튼 -->
         <button id="btnReplay" class="hidden px-6 py-2 bg-blue-500 hover:bg-blue-600 text-white font-bold rounded-lg shadow transition-colors">
             ↻ 이 단원으로 다시하기
         </button>
         <button id="btnToggleSpymaster" class="hidden px-6 py-2 bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold rounded-lg shadow transition-colors">
             요원 모드 (정답 숨김)
         </button>
-        
-        <!-- 모두에게 보이는 버튼 -->
         <button id="btnEndTurn" class="px-6 py-2 bg-yellow-500 hover:bg-yellow-600 text-white font-bold rounded-lg shadow transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
             턴 종료
         </button>
     </div>
 
-    <!-- 상태 보드 -->
+    <div id="playerListSection" class="bg-white p-5 rounded-xl shadow-md w-full max-w-5xl mb-6 border border-gray-200 hidden">
+        <h3 class="text-lg font-bold text-gray-700 mb-3 flex items-center gap-2">👥 현재 방에 접속 중인 요원 목록</h3>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div class="bg-red-50/60 p-3 rounded-lg border border-red-100">
+                <h4 class="font-bold text-red-600 mb-2 border-b border-red-200 pb-1 flex items-center gap-1">🔴 레드 팀원</h4>
+                <div id="redPlayerList" class="flex flex-wrap gap-2 text-sm text-red-700"></div>
+            </div>
+            <div class="bg-blue-50/60 p-3 rounded-lg border border-blue-100">
+                <h4 class="font-bold text-blue-600 mb-2 border-b border-blue-200 pb-1 flex items-center gap-1">🔵 블루 팀원</h4>
+                <div id="bluePlayerList" class="flex flex-wrap gap-2 text-sm text-blue-700"></div>
+            </div>
+        </div>
+    </div>
+
     <div class="bg-white p-4 rounded-xl shadow-md w-full max-w-5xl flex flex-col sm:flex-row justify-between items-center mb-8 border border-gray-200">
         <div id="statusMessage" class="text-xl sm:text-2xl mb-2 sm:mb-0 text-center sm:text-left flex-1 font-medium">
-            <!-- JS로 채워짐 -->
-        </div>
+            </div>
         <div class="flex gap-6 text-xl font-bold bg-gray-50 px-4 py-2 rounded-lg border">
             <span class="text-red-500" id="redLeftDisplay">레드 남음: 9</span>
             <span class="text-blue-500" id="blueLeftDisplay">블루 남음: 8</span>
         </div>
     </div>
 
-    <!-- 카드 그리드 -->
     <div id="cardGrid" class="grid grid-cols-5 gap-2 sm:gap-4 w-full max-w-5xl">
-        <!-- JS로 채워짐 -->
-    </div>
+        </div>
 
-    <!-- 교사 로그인 모달 -->
     <div id="loginModal" class="fixed inset-0 bg-black/60 flex items-center justify-center z-[110] p-4 backdrop-blur-sm hidden">
         <div class="bg-white p-8 rounded-2xl shadow-2xl text-center max-w-sm w-full">
             <h3 class="text-2xl font-extrabold mb-2 text-gray-800">교사 모드 접근</h3>
@@ -189,7 +183,6 @@
         </div>
     </div>
 
-    <!-- 범용 알림 모달 -->
     <div id="alertModal" class="fixed inset-0 bg-black/60 flex items-center justify-center z-[110] p-4 backdrop-blur-sm hidden">
         <div class="bg-white p-8 rounded-2xl shadow-2xl text-center max-w-md w-full">
             <p id="alertMessageText" class="mb-8 text-gray-800 font-medium text-lg leading-relaxed"></p>
@@ -204,10 +197,9 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
-        import { getAuth, signInWithCustomToken, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
+        import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
         import { getFirestore, doc, setDoc, getDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
 
-        // Firebase 설정
         const firebaseConfig = {
             apiKey: "AIzaSyDyptQIWr7DruhQxOxj1UqsOnQIpEEBChI",
             authDomain: "codenames-916b8.firebaseapp.com",
@@ -221,7 +213,6 @@
         const db = getFirestore(app);
         const platformAppId = 'codenames-custom-app';
 
-        // 상태 변수
         let gameData = null;
         let settingsData = null;
         let isSpymaster = false;
@@ -229,14 +220,12 @@
         
         let settingsLoaded = false;
         let gameLoaded = false;
-        
-        // --- 1. 학생 등록 UI 로직 ---
+
         let studentInfo = JSON.parse(sessionStorage.getItem('codenames_studentInfo'));
         let selectedTeam = 'red';
         let selectedRole = 'agent';
         let generatedRoomCode = '';
 
-        // UI 요소
         const entryScreen = document.getElementById('entryScreen');
         const entryStep1 = document.getElementById('entryStep1');
         const entryStep2 = document.getElementById('entryStep2');
@@ -246,13 +235,13 @@
         const btnChangeTeam = document.getElementById('btnChangeTeam');
         const userInfoContainer = document.getElementById('userInfoContainer');
         const roomCodeDisplayBadge = document.getElementById('roomCodeDisplayBadge');
+        const playerListSection = document.getElementById('playerListSection');
         
         const btnTeamRed = document.getElementById('btnTeamRed');
         const btnTeamBlue = document.getElementById('btnTeamBlue');
         const btnRoleAgent = document.getElementById('btnRoleAgent');
         const btnRoleLeader = document.getElementById('btnRoleLeader');
 
-        // 선택 토글 함수
         function selectTeam(team) {
             selectedTeam = team;
             if(team === 'red') {
@@ -278,12 +267,10 @@
         btnRoleAgent.addEventListener('click', () => selectRole('agent'));
         btnRoleLeader.addEventListener('click', () => selectRole('leader'));
 
-        // 무작위 방 코드 생성 (4자리 영숫자)
         function generateCode() {
             return Math.random().toString(36).substring(2, 6).toUpperCase();
         }
 
-        // [다음 단계] 버튼 클릭
         document.getElementById('btnNextStep').addEventListener('click', () => {
             const grade = document.getElementById('inputGrade').value;
             const classNum = document.getElementById('inputClass').value;
@@ -294,7 +281,6 @@
                 return customAlert('학년, 반, 번호, 이름을 정확히 입력해주세요.');
             }
 
-            // 임시 정보 저장 (방 번호는 아직 없음)
             studentInfo = { grade, classNum, number: num, name, team: selectedTeam, role: selectedRole };
             
             entryStep1.classList.add('hidden');
@@ -313,13 +299,11 @@
             }
         });
 
-        // 뒤로 가기
         document.getElementById('btnBackToStep1').addEventListener('click', () => {
             entryStep2.classList.add('hidden');
             entryStep1.classList.remove('hidden');
         });
 
-        // 뱃지 UI 업데이트 함수
         function updateUserInfoBadge() {
             if(!studentInfo) return;
             const teamIcon = studentInfo.team === 'red' ? '🔴' : '🔵';
@@ -336,7 +320,6 @@
             roomCodeDisplayBadge.innerText = `방 코드: ${studentInfo.roomCode}`;
             roomCodeDisplayBadge.classList.remove('hidden');
             
-            // 권한(버튼) 표시 업데이트
             const btnReplay = document.getElementById('btnReplay');
             const btnToggleSpy = document.getElementById('btnToggleSpymaster');
             
@@ -346,11 +329,15 @@
             } else {
                 btnReplay.classList.add('hidden');
                 btnToggleSpy.classList.add('hidden');
-                isSpymaster = false; // 요원은 강제로 팀장모드 해제
+                isSpymaster = false;
             }
         }
 
-        // 방 입장 처리 공통 함수
+        // 유저 고유 키 생성기
+        function getUserKey() {
+            return `${studentInfo.grade}_${studentInfo.classNum}_${studentInfo.number}_${studentInfo.name}`;
+        }
+
         function enterGameRoom(roomCode) {
             studentInfo.roomCode = roomCode;
             sessionStorage.setItem('codenames_studentInfo', JSON.stringify(studentInfo));
@@ -360,33 +347,40 @@
             updateUserInfoBadge();
             
             document.getElementById('loadingOverlay').classList.remove('hidden');
-            initAuth(); // 로그인 및 DB 연결 시작
+            initAuth();
         }
 
-        // 방 만들고 입장 (팀장)
         document.getElementById('btnCreateRoom').addEventListener('click', () => enterGameRoom(generatedRoomCode));
 
-        // 코드 입력하고 입장 (요원)
         document.getElementById('btnJoinRoom').addEventListener('click', () => {
             const code = document.getElementById('inputRoomCode').value.trim().toUpperCase();
             if(code.length !== 4) return customAlert('4자리 방 코드를 정확히 입력해주세요.');
             enterGameRoom(code);
         });
 
-        // 입장 후 팀 변경 기능
+        // 🔄 팀 변경 처리 (실시간 DB 동기화 추가)
         btnChangeTeam.addEventListener('click', () => {
             if(!studentInfo) return;
             studentInfo.team = studentInfo.team === 'red' ? 'blue' : 'red';
             sessionStorage.setItem('codenames_studentInfo', JSON.stringify(studentInfo));
             
-            // 애니메이션 재시작을 위한 트릭
             userInfoDisplay.classList.remove('animate-pop');
             void userInfoDisplay.offsetWidth; 
-            
             updateUserInfoBadge();
+
+            if (gameLoaded && studentInfo.roomCode) {
+                const gameDocRef = doc(db, 'artifacts', platformAppId, 'public', 'data', 'rooms', studentInfo.roomCode);
+                setDoc(gameDocRef, {
+                    players: {
+                        [getUserKey()]: {
+                            name: studentInfo.name, team: studentInfo.team, role: studentInfo.role,
+                            grade: studentInfo.grade, classNum: studentInfo.classNum, number: studentInfo.number
+                        }
+                    }
+                }, { merge: true });
+            }
         });
 
-        // 이미 세션에 정보가 있으면 바로 로딩으로 넘어감
         if (studentInfo && studentInfo.roomCode) {
             entryScreen.classList.add('hidden');
             userInfoContainer.classList.remove('hidden');
@@ -394,7 +388,6 @@
             initAuth();
         }
 
-        // --- 2. 코어 게임 로직 ---
         function customAlert(msg) {
             document.getElementById('alertMessageText').innerText = msg;
             document.getElementById('alertModal').classList.remove('hidden');
@@ -421,7 +414,7 @@
             const cards = shuffledWords.map((word, index) => ({
                 id: index, word: word, type: shuffledTypes[index], revealed: false, revealedBy: null
             }));
-            return { cards, redLeft: 9, blueLeft: 8, status: 'playing', currentTurn: 'red', currentUnitId: unitId };
+            return { cards, redLeft: 9, blueLeft: 8, status: 'playing', currentTurn: 'red', currentUnitId: unitId, players: {} };
         }
 
         async function initAuth() {
@@ -447,10 +440,7 @@
 
         function initRealtimeListeners() {
             const roomCode = studentInfo.roomCode;
-            
-            // 공통 설정 (단어장 등)은 공유
             const settingsDocRef = doc(db, 'artifacts', platformAppId, 'public', 'data', 'settings', 'shared');
-            // 게임 상태는 방 코드별로 독립
             const gameDocRef = doc(db, 'artifacts', platformAppId, 'public', 'data', 'rooms', roomCode);
 
             onSnapshot(settingsDocRef, (docSnap) => {
@@ -459,16 +449,23 @@
                     settingsLoaded = true;
                     renderTeacherDashboard();
                     
-                    // 방(게임) 데이터 체크 및 생성
                     getDoc(gameDocRef).then(gameSnap => {
+                        const playerObj = { 
+                            name: studentInfo.name, team: studentInfo.team, role: studentInfo.role,
+                            grade: studentInfo.grade, classNum: studentInfo.classNum, number: studentInfo.number 
+                        };
+
                         if(!gameSnap.exists()) {
                             const defaultUnit = settingsData.units[0];
-                            setDoc(gameDocRef, generateNewGameState(defaultUnit.words, defaultUnit.id));
+                            const newGame = generateNewGameState(defaultUnit.words, defaultUnit.id);
+                            newGame.players = { [getUserKey()]: playerObj };
+                            setDoc(gameDocRef, newGame);
+                        } else {
+                            setDoc(gameDocRef, { players: { [getUserKey()]: playerObj } }, { merge: true });
                         }
                     });
                     checkAndHideLoading();
                 } else {
-                    // 최초 설정 생성
                     setDoc(settingsDocRef, {
                         password: '1234',
                         units: [{
@@ -490,7 +487,6 @@
             });
         }
 
-        // --- 화면 렌더링 ---
         function renderGame() {
             if (!gameData || !settingsData) return;
 
@@ -511,6 +507,31 @@
             document.getElementById('redLeftDisplay').innerText = `레드 남음: ${gameData.redLeft}`;
             document.getElementById('blueLeftDisplay').innerText = `블루 남음: ${gameData.blueLeft}`;
 
+            // 👥 접속 중인 요원 목록 동적 렌더링 (팀장 모드에서만 활성화)
+            if (isSpymaster && studentInfo?.role === 'leader') {
+                playerListSection.classList.remove('hidden');
+                const redPlayerList = document.getElementById('redPlayerList');
+                const bluePlayerList = document.getElementById('bluePlayerList');
+                redPlayerList.innerHTML = '';
+                bluePlayerList.innerHTML = '';
+
+                if (gameData.players) {
+                    Object.values(gameData.players).forEach(p => {
+                        const tag = document.createElement('span');
+                        tag.className = "bg-white px-2.5 py-1 rounded-md shadow-sm font-semibold border border-gray-200 text-xs sm:text-sm";
+                        tag.innerText = `${p.grade}년 ${p.classNum}반 ${p.number}번 ${p.name}${p.role === 'leader' ? ' (👑팀장)' : ''}`;
+                        
+                        if (p.team === 'red') {
+                            redPlayerList.appendChild(tag);
+                        } else {
+                            bluePlayerList.appendChild(tag);
+                        }
+                    });
+                }
+            } else {
+                playerListSection.classList.add('hidden');
+            }
+
             const cardGrid = document.getElementById('cardGrid');
             cardGrid.innerHTML = '';
             
@@ -525,7 +546,6 @@
                     else if (card.type === 'neutral') { bg = "bg-stone-300"; text = "text-stone-700"; border = "border-stone-400"; }
                     else if (card.type === 'assassin') { bg = "bg-gray-900"; text = "text-white"; border = "border-black"; }
                 } else if (isSpymaster && studentInfo?.role === 'leader') {
-                    // 팀장 모드 렌더링 (확실한 배경색으로 수정)
                     cursor = "cursor-not-allowed";
                     if (card.type === 'red') { bg = "bg-red-100"; text = "text-red-800"; border = "border-red-400"; }
                     else if (card.type === 'blue') { bg = "bg-blue-100"; text = "text-blue-800"; border = "border-blue-400"; }
@@ -553,7 +573,6 @@
             document.getElementById('btnEndTurn').disabled = (gameData.status !== 'playing');
         }
 
-        // 게임 조작 로직
         function handleCardClick(id) {
             if (!gameData || gameData.status !== 'playing' || isSpymaster) return;
             
@@ -591,10 +610,9 @@
             setDoc(gameDocRef, { ...gameData, cards: newCards, redLeft: newRedLeft, blueLeft: newBlueLeft, status: newStatus, currentTurn: newTurn });
         }
 
-        // 스파이마스터(팀장 모드) 토글
         const btnToggleSpymaster = document.getElementById('btnToggleSpymaster');
         btnToggleSpymaster.addEventListener('click', () => {
-            if(studentInfo?.role !== 'leader') return; // 방어 코드
+            if(studentInfo?.role !== 'leader') return;
             isSpymaster = !isSpymaster;
             
             if (isSpymaster) {
@@ -608,10 +626,9 @@
                 btnToggleSpymaster.classList.replace('hover:bg-purple-700', 'hover:bg-gray-400');
                 btnToggleSpymaster.classList.replace('text-white', 'text-gray-800');
             }
-            renderGame(); // 그리드 갱신
+            renderGame();
         });
 
-        // 다시하기 & 턴 종료
         document.getElementById('btnEndTurn').addEventListener('click', () => {
             if (!gameData || gameData.status !== 'playing') return;
             const gameDocRef = doc(db, 'artifacts', platformAppId, 'public', 'data', 'rooms', studentInfo.roomCode);
@@ -623,14 +640,15 @@
             const unitId = gameData.currentUnitId || settingsData.units[0].id;
             const unit = settingsData.units.find(u => u.id === unitId) || settingsData.units[0];
             
-            const gameDocRef = doc(db, 'artifacts', platformAppId, 'public', 'data', 'rooms', studentInfo.roomCode);
-            setDoc(gameDocRef, generateNewGameState(unit.words, unit.id));
+            const nextState = generateNewGameState(unit.words, unit.id);
+            nextState.players = gameData.players || {}; // 👥 재시작 시 기존 플레이어 명단 보존
             
-            if(isSpymaster) btnToggleSpymaster.click(); // 리플레이 시 팀장모드 자동 끄기
+            const gameDocRef = doc(db, 'artifacts', platformAppId, 'public', 'data', 'rooms', studentInfo.roomCode);
+            setDoc(gameDocRef, nextState);
+            
+            if(isSpymaster) btnToggleSpymaster.click();
         });
 
-
-        // --- 3. 교사 모드 로직 ---
         const btnToggleTeacher = document.getElementById('btnToggleTeacher');
         const teacherPanel = document.getElementById('teacherPanel');
         
@@ -718,7 +736,11 @@
             if(!studentInfo?.roomCode) return customAlert('현재 방에 입장된 상태가 아닙니다.');
             const unitId = document.getElementById('selectPlayUnit').value;
             const unit = settingsData.units.find(u => u.id === unitId) || settingsData.units[0];
-            setDoc(doc(db, 'artifacts', platformAppId, 'public', 'data', 'rooms', studentInfo.roomCode), generateNewGameState(unit.words, unit.id));
+            
+            const nextState = generateNewGameState(unit.words, unit.id);
+            nextState.players = gameData.players || {}; // 👥 단원 교체 시에도 요원 명단 보존
+            
+            setDoc(doc(db, 'artifacts', platformAppId, 'public', 'data', 'rooms', studentInfo.roomCode), nextState);
             if(isSpymaster) btnToggleSpymaster.click();
             customAlert('현재 방의 게임이 새 단원으로 변경되었습니다.');
         });
