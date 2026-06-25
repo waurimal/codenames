@@ -3,239 +3,512 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>코드네임 웹앱</title>
+    <title>코드네임 영어단어 멀티플레이어</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        body {
-            font-family: 'Pretendard', 'Malgun Gothic', sans-serif;
-            background-color: #f4f4f9;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding: 20px;
-            margin: 0;
-        }
-        h1 {
-            color: #333;
-        }
-        .controls {
-            margin-bottom: 20px;
-            display: flex;
-            gap: 10px;
-        }
-        button {
-            padding: 10px 20px;
-            font-size: 16px;
-            font-weight: bold;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: background-color 0.2s;
-        }
-        .btn-new { background-color: #4CAF50; color: white; }
-        .btn-new:hover { background-color: #45a049; }
-        .btn-spy { background-color: #ff9800; color: white; }
-        .btn-spy:hover { background-color: #e68a00; }
-        
-        .board {
-            display: grid;
-            grid-template-columns: repeat(5, 1fr);
-            gap: 12px;
-            max-width: 800px;
-            width: 100%;
-        }
-        .card {
-            background-color: white;
-            border: 2px solid #ddd;
-            border-radius: 10px;
-            height: 100px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.2rem;
-            font-weight: bold;
-            color: #333;
-            cursor: pointer;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-            transition: transform 0.1s;
-            user-select: none;
-        }
-        .card:active {
-            transform: scale(0.98);
-        }
-        
-        /* 정체가 밝혀졌을 때의 스타일 */
-        .card.revealed-red { background-color: #ff5252; color: white; border-color: #ff5252; }
-        .card.revealed-blue { background-color: #448aff; color: white; border-color: #448aff; }
-        .card.revealed-neutral { background-color: #e0e0e0; color: #555; border-color: #bdbdbd; }
-        .card.revealed-assassin { background-color: #212121; color: white; border-color: #212121; }
-
-        /* 팀장(스파이마스터) 모드일 때 정답 미리보기 스타일 */
-        .spymaster-mode .card:not(.revealed-red):not(.revealed-blue):not(.revealed-neutral):not(.revealed-assassin).type-red {
-            border-color: #ff5252; color: #ff5252; background-color: #ffeaea;
-        }
-        .spymaster-mode .card:not(.revealed-red):not(.revealed-blue):not(.revealed-neutral):not(.revealed-assassin).type-blue {
-            border-color: #448aff; color: #448aff; background-color: #eaefff;
-        }
-        .spymaster-mode .card:not(.revealed-red):not(.revealed-blue):not(.revealed-neutral):not(.revealed-assassin).type-neutral {
-            border-color: #bdbdbd; background-color: #f5f5f5;
-        }
-        .spymaster-mode .card:not(.revealed-red):not(.revealed-blue):not(.revealed-neutral):not(.revealed-assassin).type-assassin {
-            border-color: #212121; color: #212121; background-color: #e0e0e0;
-        }
-        
-        .status {
-            margin-top: 20px;
-            font-size: 1.2rem;
-            font-weight: bold;
-        }
+        body { font-family: 'Pretendard', 'Malgun Gothic', sans-serif; }
+        .hidden { display: none !important; }
     </style>
 </head>
-<body>
+<body class="bg-gray-100 p-4 sm:p-8 flex flex-col items-center font-sans relative min-h-screen">
 
-    <h1>🕵️ 코드네임</h1>
-    
-    <div class="controls">
-        <button class="btn-new" onclick="initGame()">새 게임 시작</button>
-        <button class="btn-spy" onclick="toggleSpymaster()">팀장(스파이마스터) 뷰 켜기/끄기</button>
+    <!-- 로딩 오버레이 -->
+    <div id="loadingOverlay" class="fixed inset-0 bg-gray-50 z-50 flex items-center justify-center">
+        <div class="text-xl font-bold text-gray-500">게임을 불러오는 중...</div>
     </div>
 
-    <div class="status" id="status-text">선공: 레드 팀 (남은 카드: 9장)</div>
+    <!-- 상단 헤더 -->
+    <div class="w-full max-w-5xl flex justify-between items-center mb-6">
+        <h1 class="text-3xl sm:text-4xl font-extrabold text-gray-800 drop-shadow-sm">🕵️ CodeNames: English</h1>
+        <button id="btnToggleTeacher" class="px-4 py-2 bg-slate-700 hover:bg-slate-800 text-white text-sm font-bold rounded shadow transition-colors">
+            ⚙️ 교사 모드
+        </button>
+    </div>
 
-    <div class="board" id="board">
+    <!-- 교사 모드 관리 패널 (기본 숨김) -->
+    <div id="teacherPanel" class="bg-white border-t-4 border-indigo-500 p-6 rounded-xl shadow-md w-full max-w-5xl mb-8 hidden">
+        <h2 class="text-2xl font-bold text-gray-800 mb-6">교사 모드 관리 (Teacher Dashboard)</h2>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <!-- 왼쪽: 단원 관리 및 비번 -->
+            <div>
+                <div class="bg-gray-50 p-4 rounded-lg border border-gray-200 mb-4">
+                    <h3 class="font-bold text-lg mb-3">📚 새 단원 및 단어 추가</h3>
+                    <input type="text" id="inputUnitName" placeholder="단원명 (예: Unit 1. Animals)" class="border border-gray-300 p-2 rounded mb-2 w-full focus:outline-none focus:ring-2 focus:ring-indigo-400">
+                    <textarea id="inputUnitWords" placeholder="영어 단어들을 쉼표(,)나 줄바꿈으로 구분해서 입력하세요. (최소 25단어 권장)" class="border border-gray-300 p-2 rounded mb-2 w-full h-28 resize-none focus:outline-none focus:ring-2 focus:ring-indigo-400"></textarea>
+                    <button id="btnSaveUnit" class="w-full bg-indigo-500 hover:bg-indigo-600 text-white font-bold py-2 rounded transition">
+                        단원 저장
+                    </button>
+                </div>
+
+                <div class="bg-gray-50 p-4 rounded-lg border border-gray-200">
+                    <h3 class="font-bold text-lg mb-3">🔒 비밀번호 변경</h3>
+                    <div class="flex gap-2">
+                        <input type="text" id="inputNewPassword" placeholder="새로운 숫자 비밀번호" class="border border-gray-300 p-2 rounded flex-1 focus:outline-none focus:ring-2 focus:ring-indigo-400">
+                        <button id="btnChangePassword" class="bg-slate-600 hover:bg-slate-700 text-white font-bold px-4 py-2 rounded transition">변경</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 오른쪽: 목록 및 게임 시작 -->
+            <div>
+                <div class="bg-gray-50 p-4 rounded-lg border border-gray-200 h-full flex flex-col">
+                    <h3 class="font-bold text-lg mb-3">🎮 새 게임 시작하기</h3>
+                    <div class="flex flex-col gap-2 mb-6">
+                        <label class="text-sm font-semibold text-gray-600">플레이할 단원 선택:</label>
+                        <select id="selectPlayUnit" class="border border-gray-300 p-2 rounded bg-white focus:outline-none focus:ring-2 focus:ring-indigo-400">
+                            <!-- JS로 채워짐 -->
+                        </select>
+                        <button id="btnStartSpecificGame" class="mt-2 bg-green-500 hover:bg-green-600 text-white font-bold py-3 rounded shadow-md transition">
+                            선택한 단원으로 새 게임 덮어쓰기
+                        </button>
+                    </div>
+
+                    <h3 class="font-bold text-lg mb-3 border-t pt-4">📋 등록된 단원 목록</h3>
+                    <div id="unitListContainer" class="overflow-y-auto flex-1 pr-2 max-h-40">
+                        <!-- JS로 채워짐 -->
+                    </div>
+                </div>
+            </div>
         </div>
+    </div>
 
-    <script>
-        // 학생들도 쉽게 이해할 수 있는 단어 풀
-        const wordPool = [
-            '사과', '바다', '우주', '학교', '선생님', '연필', '지우개', '피자', '컴퓨터', '마우스',
-            '강아지', '고양이', '사자', '호랑이', '로봇', '비행기', '자동차', '자전거', '지하철', '태양',
-            '달', '별', '나무', '꽃', '나비', '거미', '의자', '책상', '안경', '가방',
-            '신발', '모자', '우산', '비', '눈', '바람', '구름', '무지개', '사진', '카메라',
-            '음악', '피아노', '기타', '노래', '춤', '축구', '야구', '수영', '태권도', '경찰'
-        ];
+    <!-- 일반 컨트롤 패널 -->
+    <div class="flex flex-wrap gap-4 mb-6 justify-center">
+        <button id="btnReplay" class="px-6 py-2 bg-blue-500 hover:bg-blue-600 text-white font-bold rounded-lg shadow transition-colors">
+            ↻ 이 단원으로 다시하기
+        </button>
+        <button id="btnToggleSpymaster" class="px-6 py-2 bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold rounded-lg shadow transition-colors">
+            요원 모드
+        </button>
+        <button id="btnEndTurn" class="px-6 py-2 bg-yellow-500 hover:bg-yellow-600 text-white font-bold rounded-lg shadow transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+            턴 종료
+        </button>
+    </div>
 
-        let cards = [];
-        let isSpymasterMode = false;
-        let redLeft = 9;
-        let blueLeft = 8;
+    <!-- 상태 보드 -->
+    <div class="bg-white p-4 rounded-xl shadow-md w-full max-w-5xl flex flex-col sm:flex-row justify-between items-center mb-8 border border-gray-200">
+        <div id="statusMessage" class="text-xl sm:text-2xl mb-2 sm:mb-0 text-center sm:text-left flex-1 font-medium">
+            <!-- JS로 채워짐 -->
+        </div>
+        <div class="flex gap-6 text-xl font-bold bg-gray-50 px-4 py-2 rounded-lg border">
+            <span class="text-red-500" id="redLeftDisplay">레드 남음: 9</span>
+            <span class="text-blue-500" id="blueLeftDisplay">블루 남음: 8</span>
+        </div>
+    </div>
 
+    <!-- 카드 그리드 -->
+    <div id="cardGrid" class="grid grid-cols-5 gap-2 sm:gap-4 w-full max-w-5xl">
+        <!-- JS로 채워짐 -->
+    </div>
+
+    <!-- 교사 로그인 모달 -->
+    <div id="loginModal" class="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4 backdrop-blur-sm hidden">
+        <div class="bg-white p-8 rounded-2xl shadow-2xl text-center max-w-sm w-full">
+            <h3 class="text-2xl font-extrabold mb-2 text-gray-800">교사 모드 접근</h3>
+            <p class="text-gray-500 text-sm mb-6">설정된 비밀번호를 입력해주세요.</p>
+            <input type="password" id="inputLoginPassword" class="border-2 border-gray-200 p-3 mb-2 w-full rounded-lg focus:outline-none focus:border-indigo-500 transition-colors text-center text-lg tracking-widest" placeholder="****">
+            <p id="loginError" class="text-red-500 text-sm mb-4 font-medium hidden">비밀번호가 틀렸습니다.</p>
+            <div class="flex gap-3 mt-6">
+                <button id="btnCancelLogin" class="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold py-3 rounded-lg transition-colors">취소</button>
+                <button id="btnConfirmLogin" class="flex-1 bg-indigo-500 hover:bg-indigo-600 text-white font-bold py-3 rounded-lg transition-colors shadow-md">확인</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 범용 알림 모달 -->
+    <div id="alertModal" class="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4 backdrop-blur-sm hidden">
+        <div class="bg-white p-8 rounded-2xl shadow-2xl text-center max-w-md w-full">
+            <p id="alertMessageText" class="mb-8 text-gray-800 font-medium text-lg leading-relaxed"></p>
+            <button id="btnCloseAlert" class="bg-indigo-500 hover:bg-indigo-600 text-white px-8 py-3 rounded-xl font-bold shadow-md transition-transform active:scale-95 w-full">확인</button>
+        </div>
+    </div>
+
+    <!-- 푸터 -->
+    <footer class="mt-12 text-center text-sm text-gray-500 w-full pb-4">
+        <p>만든이: 곽현석(이의초등학교)</p>
+        <p>Copyright &copy; 2026 Eui Elementary School. All Rights Reserved.</p>
+    </footer>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
+        import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-analytics.js";
+        import { getAuth, signInWithCustomToken, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
+        import { getFirestore, doc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+
+        // Firebase 설정
+        const firebaseConfig = {
+            apiKey: "AIzaSyDyptQIWr7DruhQxOxj1UqsOnQIpEEBChI",
+            authDomain: "codenames-916b8.firebaseapp.com",
+            projectId: "codenames-916b8",
+            storageBucket: "codenames-916b8.firebasestorage.app",
+            messagingSenderId: "919143481830",
+            appId: "1:919143481830:web:cf6d9911306e881bfe1627",
+            measurementId: "G-LT72B5W5SQ"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        try { getAnalytics(app); } catch (e) { console.warn("Analytics not supported"); }
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        const platformAppId = typeof __app_id !== 'undefined' ? __app_id : 'codenames-custom-app';
+
+        // 앱 전역 상태
+        let currentUser = null;
+        let gameData = null;
+        let settingsData = null;
+        let isSpymaster = false;
+        let isTeacherMode = false;
+
+        // UI 요소
+        const loadingOverlay = document.getElementById('loadingOverlay');
+        const teacherPanel = document.getElementById('teacherPanel');
+        const btnToggleTeacher = document.getElementById('btnToggleTeacher');
+        const selectPlayUnit = document.getElementById('selectPlayUnit');
+        const unitListContainer = document.getElementById('unitListContainer');
+        const cardGrid = document.getElementById('cardGrid');
+        
+        // 커스텀 알림 함수
+        function customAlert(msg) {
+            document.getElementById('alertMessageText').innerText = msg;
+            document.getElementById('alertModal').classList.remove('hidden');
+        }
+        document.getElementById('btnCloseAlert').addEventListener('click', () => {
+            document.getElementById('alertModal').classList.add('hidden');
+        });
+
+        // 셔플 알고리즘
         function shuffle(array) {
-            for (let i = array.length - 1; i > 0; i--) {
+            const newArray = [...array];
+            for (let i = newArray.length - 1; i > 0; i--) {
                 const j = Math.floor(Math.random() * (i + 1));
-                [array[i], array[j]] = [array[j], array[i]];
+                [newArray[i], newArray[j]] = [newArray[j], newArray[i]];
             }
-            return array;
+            return newArray;
         }
 
-        function initGame() {
-            // 1. 단어 25개 무작위 선택
-            const shuffledWords = shuffle([...wordPool]).slice(0, 25);
+        // 새 게임 생성 로직
+        function generateNewGameState(wordPool, unitId) {
+            let words = [...wordPool];
+            if (words.length < 25) {
+                while (words.length < 25) {
+                    words = [...words, ...wordPool];
+                }
+            }
             
-            // 2. 역할 배정 (레드 9, 블루 8, 중립 7, 암살자 1) - 레드 선공 기준
-            const types = [
-                ...Array(9).fill('red'),
-                ...Array(8).fill('blue'),
-                ...Array(7).fill('neutral'),
-                'assassin'
-            ];
+            const shuffledWords = shuffle(words).slice(0, 25);
+            const types = [...Array(9).fill('red'), ...Array(8).fill('blue'), ...Array(7).fill('neutral'), 'assassin'];
             const shuffledTypes = shuffle(types);
 
-            // 3. 카드 객체 생성
-            cards = shuffledWords.map((word, index) => ({
-                id: index,
-                word: word,
-                type: shuffledTypes[index],
-                revealed: false
+            const cards = shuffledWords.map((word, index) => ({
+                id: index, word: word, type: shuffledTypes[index], revealed: false
             }));
 
-            redLeft = 9;
-            blueLeft = 8;
-            isSpymasterMode = false;
-            document.getElementById('board').classList.remove('spymaster-mode');
-            
-            updateStatus();
-            renderBoard();
+            return { cards, redLeft: 9, blueLeft: 8, status: 'playing', currentTurn: 'red', currentUnitId: unitId };
         }
 
-        function renderBoard() {
-            const board = document.getElementById('board');
-            board.innerHTML = '';
-
-            cards.forEach(card => {
-                const cardEl = document.createElement('div');
-                cardEl.className = 'card';
-                cardEl.textContent = card.word;
-                
-                // 타입 클래스 추가 (팀장 모드 렌더링용)
-                cardEl.classList.add(`type-${card.type}`);
-
-                // 이미 뒤집힌 카드 처리
-                if (card.revealed) {
-                    cardEl.classList.add(`revealed-${card.type}`);
+        // 인증 로직
+        async function initAuth() {
+            try {
+                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                    await signInWithCustomToken(auth, __initial_auth_token);
+                } else {
+                    await signInAnonymously(auth);
                 }
+            } catch (error) {
+                await signInAnonymously(auth).catch(console.error);
+            }
+        }
 
-                // 클릭 이벤트
-                cardEl.addEventListener('click', () => revealCard(card.id));
-                board.appendChild(cardEl);
+        onAuthStateChanged(auth, (user) => {
+            currentUser = user;
+            if (user) {
+                initRealtimeListeners();
+            }
+        });
+
+        // 데이터 리스너
+        function initRealtimeListeners() {
+            // Settings Listener
+            const settingsDocRef = doc(db, 'artifacts', platformAppId, 'public', 'data', 'settings', 'shared');
+            onSnapshot(settingsDocRef, (docSnap) => {
+                if (docSnap.exists()) {
+                    settingsData = docSnap.data();
+                    renderTeacherDashboard();
+                } else {
+                    setDoc(settingsDocRef, {
+                        password: '1234',
+                        units: [{
+                            id: 'default_english',
+                            name: 'Basic English Words',
+                            words: ['apple', 'banana', 'orange', 'grape', 'melon', 'water', 'fire', 'earth', 'wind', 'sky',
+                                    'sun', 'moon', 'star', 'planet', 'comet', 'tree', 'flower', 'grass', 'leaf', 'root',
+                                    'dog', 'cat', 'bird', 'fish', 'bug', 'car', 'train', 'plane', 'boat', 'bike']
+                        }]
+                    });
+                }
+            });
+
+            // Game Listener
+            const gameDocRef = doc(db, 'artifacts', platformAppId, 'public', 'data', 'gameState', 'shared');
+            onSnapshot(gameDocRef, (docSnap) => {
+                if (docSnap.exists()) {
+                    gameData = docSnap.data();
+                    renderGame();
+                    if(settingsData) loadingOverlay.classList.add('hidden');
+                } else if (settingsData) {
+                    const defaultUnit = settingsData.units[0];
+                    const newGame = generateNewGameState(defaultUnit.words, defaultUnit.id);
+                    setDoc(gameDocRef, newGame);
+                }
             });
         }
 
-        function revealCard(id) {
-            // 팀장 모드에서는 클릭 방지 (원치 않으면 이 조건을 제거해도 됩니다)
-            if (isSpymasterMode) {
-                alert('팀장(스파이마스터) 뷰 상태에서는 카드를 뒤집을 수 없습니다.');
-                return;
+        // 게임 렌더링
+        function renderGame() {
+            if (!gameData || !settingsData) return;
+
+            // 상태 메시지 업데이트
+            const statusBox = document.getElementById('statusMessage');
+            const currentUnitName = settingsData.units.find(u => u.id === gameData.currentUnitId)?.name || '알 수 없는 단원';
+            
+            let statusHtml = '';
+            if (gameData.status === 'red_win') statusHtml = '<span class="text-red-600">🎉 레드 팀 승리! (모든 요원 발견)</span>';
+            else if (gameData.status === 'blue_win') statusHtml = '<span class="text-blue-600">🎉 블루 팀 승리! (모든 요원 발견)</span>';
+            else if (gameData.status === 'assassin_red') statusHtml = '<span class="text-blue-600">💥 게임 오버! 레드 팀이 암살자를 건드렸습니다. (블루 팀 승리)</span>';
+            else if (gameData.status === 'assassin_blue') statusHtml = '<span class="text-red-600">💥 게임 오버! 블루 팀이 암살자를 건드렸습니다. (레드 팀 승리)</span>';
+            else {
+                const turnStr = gameData.currentTurn === 'red' ? '<strong class="text-red-600">레드 팀</strong>' : '<strong class="text-blue-600">블루 팀</strong>';
+                statusHtml = `현재 턴: ${turnStr}`;
             }
+            statusBox.innerHTML = `${statusHtml} <span class="text-sm text-gray-400 ml-4 font-normal">| 현재 단원: ${currentUnitName}</span>`;
 
-            const card = cards.find(c => c.id === id);
-            if (card.revealed) return; // 이미 뒤집힌 카드는 무시
+            document.getElementById('redLeftDisplay').innerText = `레드 남음: ${gameData.redLeft}`;
+            document.getElementById('blueLeftDisplay').innerText = `블루 남음: ${gameData.blueLeft}`;
 
+            // 카드 그리드 렌더링
+            cardGrid.innerHTML = '';
+            gameData.cards.forEach(card => {
+                const div = document.createElement('div');
+                
+                let bg = "bg-white", text = "text-gray-800", border = "border-gray-300", cursor = "cursor-pointer hover:-translate-y-1";
+
+                if (card.revealed) {
+                    cursor = "cursor-default";
+                    if (card.type === 'red') { bg = "bg-red-500"; text = "text-white"; border = "border-red-600"; }
+                    else if (card.type === 'blue') { bg = "bg-blue-500"; text = "text-white"; border = "border-blue-600"; }
+                    else if (card.type === 'neutral') { bg = "bg-stone-300"; text = "text-stone-700"; border = "border-stone-400"; }
+                    else if (card.type === 'assassin') { bg = "bg-gray-900"; text = "text-white"; border = "border-black"; }
+                } else if (isSpymaster) {
+                    cursor = "cursor-not-allowed";
+                    if (card.type === 'red') { bg = "bg-red-100"; text = "text-red-700"; border = "border-red-300"; }
+                    else if (card.type === 'blue') { bg = "bg-blue-100"; text = "text-blue-700"; border = "border-blue-300"; }
+                    else if (card.type === 'neutral') { bg = "bg-stone-50"; text = "text-stone-500"; border = "border-stone-200"; }
+                    else if (card.type === 'assassin') { bg = "bg-gray-300"; text = "text-gray-900"; border = "border-gray-500"; }
+                }
+
+                div.className = `flex items-center justify-center h-20 sm:h-28 rounded-xl border-2 sm:border-b-4 font-bold text-base sm:text-lg md:text-2xl shadow-sm transition-all duration-200 select-none uppercase tracking-wide ${bg} ${text} ${border} ${cursor}`;
+                div.innerText = card.word;
+                
+                div.addEventListener('click', () => handleCardClick(card.id));
+                cardGrid.appendChild(div);
+            });
+
+            document.getElementById('btnEndTurn').disabled = (gameData.status !== 'playing');
+        }
+
+        // 교사 대시보드 렌더링
+        function renderTeacherDashboard() {
+            if (!settingsData) return;
+            
+            // 드롭다운 업데이트
+            selectPlayUnit.innerHTML = '';
+            settingsData.units.forEach(u => {
+                const opt = document.createElement('option');
+                opt.value = u.id;
+                opt.innerText = `${u.name} (${u.words.length}단어)`;
+                selectPlayUnit.appendChild(opt);
+            });
+
+            // 리스트 업데이트
+            unitListContainer.innerHTML = '';
+            settingsData.units.forEach(u => {
+                const div = document.createElement('div');
+                div.className = "flex justify-between items-center bg-white border border-gray-200 p-2 rounded mb-2";
+                div.innerHTML = `
+                    <span class="font-medium text-gray-700 truncate mr-2">${u.name} <span class="text-xs text-gray-400">(${u.words.length})</span></span>
+                    <button class="btn-delete text-red-500 text-sm hover:text-red-700 px-2 py-1 bg-red-50 rounded" data-id="${u.id}">삭제</button>
+                `;
+                unitListContainer.appendChild(div);
+            });
+
+            // 동적 생성된 삭제 버튼 이벤트 등록
+            document.querySelectorAll('.btn-delete').forEach(btn => {
+                btn.addEventListener('click', async (e) => {
+                    const unitId = e.target.getAttribute('data-id');
+                    const updatedUnits = settingsData.units.filter(u => u.id !== unitId);
+                    if (updatedUnits.length === 0) return customAlert('최소 1개의 단원은 남아있어야 합니다.');
+                    const settingsRef = doc(db, 'artifacts', platformAppId, 'public', 'data', 'settings', 'shared');
+                    await setDoc(settingsRef, { ...settingsData, units: updatedUnits });
+                });
+            });
+        }
+
+        // 카드 클릭 로직
+        function handleCardClick(id) {
+            if (!gameData || gameData.status !== 'playing' || isSpymaster) return;
+            
+            const cardIndex = gameData.cards.findIndex(c => c.id === id);
+            if (gameData.cards[cardIndex].revealed) return;
+
+            const newCards = [...gameData.cards];
+            const card = newCards[cardIndex];
             card.revealed = true;
 
-            // 남은 개수 업데이트
-            if (card.type === 'red') redLeft--;
-            if (card.type === 'blue') blueLeft--;
+            let newRedLeft = gameData.redLeft, newBlueLeft = gameData.blueLeft;
+            let newStatus = gameData.status, newTurn = gameData.currentTurn;
 
-            renderBoard();
-            updateStatus();
+            if (card.type === 'red') newRedLeft--;
+            if (card.type === 'blue') newBlueLeft--;
 
-            // 게임 종료 조건 체크
-            setTimeout(() => {
-                if (card.type === 'assassin') {
-                    alert('💥 암살자를 선택했습니다! 게임 오버!');
-                    revealAll();
-                } else if (redLeft === 0) {
-                    alert('🎉 레드 팀 승리!');
-                    revealAll();
-                } else if (blueLeft === 0) {
-                    alert('🎉 블루 팀 승리!');
-                    revealAll();
+            if (card.type === 'assassin') {
+                newStatus = gameData.currentTurn === 'red' ? 'assassin_red' : 'assassin_blue';
+                newCards.forEach(c => c.revealed = true);
+            } else if (newRedLeft === 0) {
+                newStatus = 'red_win';
+                newCards.forEach(c => c.revealed = true);
+            } else if (newBlueLeft === 0) {
+                newStatus = 'blue_win';
+                newCards.forEach(c => c.revealed = true);
+            } else {
+                if ((gameData.currentTurn === 'red' && card.type !== 'red') || 
+                    (gameData.currentTurn === 'blue' && card.type !== 'blue')) {
+                    newTurn = gameData.currentTurn === 'red' ? 'blue' : 'red';
                 }
-            }, 100);
+            }
+
+            const gameDocRef = doc(db, 'artifacts', platformAppId, 'public', 'data', 'gameState', 'shared');
+            setDoc(gameDocRef, { ...gameData, cards: newCards, redLeft: newRedLeft, blueLeft: newBlueLeft, status: newStatus, currentTurn: newTurn });
         }
 
-        function toggleSpymaster() {
-            isSpymasterMode = !isSpymasterMode;
-            const board = document.getElementById('board');
-            if (isSpymasterMode) {
-                board.classList.add('spymaster-mode');
+        // 교사 모드 토글
+        btnToggleTeacher.addEventListener('click', () => {
+            if (isTeacherMode) {
+                isTeacherMode = false;
+                teacherPanel.classList.add('hidden');
+                btnToggleTeacher.innerText = '⚙️ 교사 모드';
+                btnToggleTeacher.classList.replace('bg-slate-500', 'bg-slate-700');
             } else {
-                board.classList.remove('spymaster-mode');
+                document.getElementById('loginModal').classList.remove('hidden');
+                document.getElementById('inputLoginPassword').value = '';
+                document.getElementById('inputLoginPassword').focus();
+                document.getElementById('loginError').classList.add('hidden');
+            }
+        });
+
+        // 비밀번호 확인 로직
+        function tryLogin() {
+            const inputPw = document.getElementById('inputLoginPassword').value;
+            if (inputPw === settingsData?.password) {
+                document.getElementById('loginModal').classList.add('hidden');
+                isTeacherMode = true;
+                teacherPanel.classList.remove('hidden');
+                btnToggleTeacher.innerText = '교사 모드 종료';
+                btnToggleTeacher.classList.replace('bg-slate-700', 'bg-slate-500');
+            } else {
+                document.getElementById('loginError').classList.remove('hidden');
             }
         }
+        document.getElementById('btnConfirmLogin').addEventListener('click', tryLogin);
+        document.getElementById('inputLoginPassword').addEventListener('keydown', (e) => { if(e.key === 'Enter') tryLogin(); });
+        document.getElementById('btnCancelLogin').addEventListener('click', () => document.getElementById('loginModal').classList.add('hidden'));
 
-        function updateStatus() {
-            document.getElementById('status-text').textContent = 
-                `남은 카드 - 레드: ${redLeft}장 | 블루: ${blueLeft}장`;
+        // 단원 저장
+        document.getElementById('btnSaveUnit').addEventListener('click', async () => {
+            const name = document.getElementById('inputUnitName').value;
+            const wordsRaw = document.getElementById('inputUnitWords').value;
+            
+            if (!name.trim()) return customAlert('단원명을 입력해주세요.');
+            const wordList = wordsRaw.split(/[\n,]+/).map(w => w.trim()).filter(w => w.length > 0);
+            if (wordList.length === 0) return customAlert('단어를 하나 이상 입력해주세요.');
+            if (wordList.length < 25) customAlert('⚠️ 주의: 단어가 25개 미만입니다. 게임 판을 채우기 위해 단어가 중복되어 나타날 수 있습니다.');
+
+            const newUnit = { id: Date.now().toString(), name: name, words: wordList };
+            const updatedUnits = [...(settingsData.units || []), newUnit];
+            
+            const settingsRef = doc(db, 'artifacts', platformAppId, 'public', 'data', 'settings', 'shared');
+            await setDoc(settingsRef, { ...settingsData, units: updatedUnits });
+            
+            document.getElementById('inputUnitName').value = '';
+            document.getElementById('inputUnitWords').value = '';
+        });
+
+        // 비밀번호 변경
+        document.getElementById('btnChangePassword').addEventListener('click', async () => {
+            const newPw = document.getElementById('inputNewPassword').value;
+            if (!newPw.trim()) return customAlert('새 비밀번호를 입력해주세요.');
+            const settingsRef = doc(db, 'artifacts', platformAppId, 'public', 'data', 'settings', 'shared');
+            await setDoc(settingsRef, { ...settingsData, password: newPw });
+            document.getElementById('inputNewPassword').value = '';
+            customAlert('비밀번호가 성공적으로 변경되었습니다.');
+        });
+
+        // 특정 단원으로 새 게임 시작
+        document.getElementById('btnStartSpecificGame').addEventListener('click', async () => {
+            const unitId = selectPlayUnit.value;
+            const unit = settingsData.units.find(u => u.id === unitId) || settingsData.units[0];
+            const newState = generateNewGameState(unit.words, unit.id);
+            const gameDocRef = doc(db, 'artifacts', platformAppId, 'public', 'data', 'gameState', 'shared');
+            await setDoc(gameDocRef, newState);
+            isSpymaster = false;
+            updateSpymasterUI();
+            customAlert(`'${unit.name}' 단원으로 게임이 시작되었습니다.`);
+        });
+
+        // 현재 단원으로 다시하기
+        document.getElementById('btnReplay').addEventListener('click', async () => {
+            if (!settingsData || !gameData) return;
+            const unitId = gameData.currentUnitId || settingsData.units[0].id;
+            const unit = settingsData.units.find(u => u.id === unitId) || settingsData.units[0];
+            const newState = generateNewGameState(unit.words, unit.id);
+            const gameDocRef = doc(db, 'artifacts', platformAppId, 'public', 'data', 'gameState', 'shared');
+            await setDoc(gameDocRef, newState);
+            isSpymaster = false;
+            updateSpymasterUI();
+        });
+
+        // 스파이마스터 토글
+        const btnToggleSpymaster = document.getElementById('btnToggleSpymaster');
+        function updateSpymasterUI() {
+            if (isSpymaster) {
+                btnToggleSpymaster.innerText = '👁️ 팀장(스파이마스터) 모드 ON';
+                btnToggleSpymaster.classList.replace('bg-gray-300', 'bg-purple-600');
+                btnToggleSpymaster.classList.replace('hover:bg-gray-400', 'hover:bg-purple-700');
+                btnToggleSpymaster.classList.replace('text-gray-800', 'text-white');
+            } else {
+                btnToggleSpymaster.innerText = '요원 모드';
+                btnToggleSpymaster.classList.replace('bg-purple-600', 'bg-gray-300');
+                btnToggleSpymaster.classList.replace('hover:bg-purple-700', 'hover:bg-gray-400');
+                btnToggleSpymaster.classList.replace('text-white', 'text-gray-800');
+            }
+            renderGame(); // 그리드 리렌더링
         }
+        btnToggleSpymaster.addEventListener('click', () => {
+            isSpymaster = !isSpymaster;
+            updateSpymasterUI();
+        });
 
-        function revealAll() {
-            cards.forEach(card => card.revealed = true);
-            renderBoard();
-        }
+        // 턴 종료
+        document.getElementById('btnEndTurn').addEventListener('click', async () => {
+            if (!gameData || gameData.status !== 'playing') return;
+            const gameDocRef = doc(db, 'artifacts', platformAppId, 'public', 'data', 'gameState', 'shared');
+            await setDoc(gameDocRef, { ...gameData, currentTurn: gameData.currentTurn === 'red' ? 'blue' : 'red' });
+        });
 
-        // 초기 게임 실행
-        initGame();
+        // 실행
+        initAuth();
     </script>
 </body>
 </html>
