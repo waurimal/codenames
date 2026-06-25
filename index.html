@@ -467,6 +467,9 @@
             if (settingsLoaded && gameLoaded) {
                 loadingOverlay.classList.add('hidden');
                 renderGame();
+            }
+        }
+
         // 데이터 리스너 (Race Condition 해결 버전)
         function initRealtimeListeners() {
             if (!studentInfo || !studentInfo.roomCode) return;
